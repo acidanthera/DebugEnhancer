@@ -38,8 +38,8 @@ private:
 	/**
 	 *  Original method
 	 */
-	using t_vprintf = int (*) (const char *fmt, va_list ap);
-	t_vprintf vprintf {nullptr};
+	using t_kern_vprintf = int (*) (const char *fmt, va_list ap);
+	t_kern_vprintf kern_vprintf {nullptr};
 	
 	unsigned int *kernel_debug_entry_count {nullptr};
 	

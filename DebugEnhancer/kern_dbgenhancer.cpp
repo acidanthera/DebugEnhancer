@@ -35,7 +35,7 @@ int DBGENH::kdb_printf(const char *fmt, ...)
 {
 	va_list ap;
 	va_start(ap, fmt);
-	callbackDBGENH->vprintf(fmt, ap);
+	callbackDBGENH->kern_vprintf(fmt, ap);
 	va_end(ap);
 	return 0;
 }
@@ -46,7 +46,7 @@ void DBGENH::kprintf(const char *fmt, ...)
 {
 	va_list ap;
 	va_start(ap, fmt);
-	callbackDBGENH->vprintf(fmt, ap);
+	callbackDBGENH->kern_vprintf(fmt, ap);
 	va_end(ap);
 }
 
@@ -76,8 +76,8 @@ void DBGENH::processKernel(KernelPatcher &patcher)
 			SYSLOG("DBGENH", "Symbol _kernel_debugger_entry_count cannot be resolved with error %d", patcher.getError());
 		patcher.getError();
 		
-		vprintf = reinterpret_cast<t_vprintf>(patcher.solveSymbol(KernelPatcher::KernelID, "_vprintf"));
-		if (vprintf) {
+		kern_vprintf = reinterpret_cast<t_kern_vprintf>(patcher.solveSymbol(KernelPatcher::KernelID, "_vprintf"));
+		if (kern_vprintf) {
 			KernelPatcher::RouteRequest requests[] = {
 				{"_kdb_printf", kdb_printf},
 				{"_kprintf", kprintf},
