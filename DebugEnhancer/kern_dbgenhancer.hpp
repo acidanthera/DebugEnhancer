@@ -28,12 +28,20 @@ private:
 	 */
 	static int 			kdb_printf(const char *fmt, ...);
 	static void			kprintf(const char *fmt, ...);
+	static uint32_t	    hibernate_write_image(void);
+	
+	/**
+	 *  Trampolines for original method invocations
+	 */
+	mach_vm_address_t org_hibernate_write_image {};
 	
 	/**
 	 *  Original method
 	 */
 	using t_vprintf = int (*) (const char *fmt, va_list ap);
 	t_vprintf vprintf {nullptr};
+	
+	unsigned int *kernel_debug_entry_count {nullptr};
 	
 	/**
 	 *  Current progress mask

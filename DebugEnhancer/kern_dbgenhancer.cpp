@@ -52,15 +52,36 @@ void DBGENH::kprintf(const char *fmt, ...)
 
 //==============================================================================
 
+uint32_t DBGENH::hibernate_write_image(void)
+{
+	unsigned int value = 0;
+	if (callbackDBGENH->kernel_debug_entry_count) {
+		value = *callbackDBGENH->kernel_debug_entry_count;
+		*callbackDBGENH->kernel_debug_entry_count = 1;
+	}
+	uint32_t result = FunctionCast(hibernate_write_image, callbackDBGENH->org_hibernate_write_image)();
+	if (callbackDBGENH->kernel_debug_entry_count)
+		*callbackDBGENH->kernel_debug_entry_count = value;
+	return result;
+}
+
+//==============================================================================
+
 void DBGENH::processKernel(KernelPatcher &patcher)
 {
 	if (!(progressState & ProcessingState::KernelRouted))
 	{
+		kernel_debug_entry_count = reinterpret_cast<unsigned int *>(patcher.solveSymbol(KernelPatcher::KernelID, "_kernel_debugger_entry_count"));
+		if (!kernel_debug_entry_count)
+			SYSLOG("DBGENH", "Symbol _kernel_debugger_entry_count cannot be resolved with error %d", patcher.getError());
+		patcher.getError();
+		
 		vprintf = reinterpret_cast<t_vprintf>(patcher.solveSymbol(KernelPatcher::KernelID, "_vprintf"));
 		if (vprintf) {
 			KernelPatcher::RouteRequest requests[] = {
 				{"_kdb_printf", kdb_printf},
-				{"_kprintf", kprintf}
+				{"_kprintf", kprintf},
+				{"_hibernate_write_image", hibernate_write_image, org_hibernate_write_image},
 			};
 			if (!patcher.routeMultiple(KernelPatcher::KernelID, requests, arrsize(requests)))
 				SYSLOG("DBGENH", "patcher.routeMultiple for %s is failed with error %d", requests[0].symbol, patcher.getError());
