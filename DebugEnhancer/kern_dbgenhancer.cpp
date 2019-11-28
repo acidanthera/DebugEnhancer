@@ -1,8 +1,8 @@
 //
-//  kern_bt4lefx.cpp
-//  BT4LEContinuityFixup
+//  kern_dbgenhancer.cpp
+//  DebugEnhancer
 //
-//  Copyright © 2017 lvs1974. All rights reserved.
+//  Copyright © 2019 lvs1974. All rights reserved.
 //
 
 #include <Headers/kern_api.hpp>
@@ -10,71 +10,66 @@
 
 #include "kern_dbgenhancer.hpp"
 
-static BT4LEFX *callbackBT4LEFX = nullptr;
+static DBGENH *callbackDBGENH = nullptr;
 
-static const char *kextIOBluetoothFamily[] { "/System/Library/Extensions/IOBluetoothFamily.kext/Contents/MacOS/IOBluetoothFamily" };
 
-static KernelPatcher::KextInfo kextIOBluetooth { "com.apple.iokit.IOBluetoothFamily", kextIOBluetoothFamily, 1, {true, true}, {}, KernelPatcher::KextInfo::Unloaded };
-
-bool BT4LEFX::init()
+bool DBGENH::init()
 {
-	callbackBT4LEFX = this;
+	callbackDBGENH = this;
 
-	lilu.onKextLoadForce(&kextIOBluetooth, 1,
-	[](void *user, KernelPatcher &patcher, size_t index, mach_vm_address_t address, size_t size) {
-		callbackBT4LEFX->processKext(patcher, index, address, size);
+	lilu.onPatcherLoadForce(
+	[](void *user, KernelPatcher &patcher) {
+		callbackDBGENH->processKernel(patcher);
 	}, this);
 
 	return true;
 }
 
-void BT4LEFX::deinit()
+void DBGENH::deinit()
 {
 }
 
-int BT4LEFX::AppleBroadcomBluetoothHostController_SetControllerFeatureFlags(void *that, unsigned int)
-{
-	DBGLOG("bt4lefx", "AppleBroadcomBluetoothHostController::SetControllerFeatureFlags is called");
-	int result = FunctionCast(AppleBroadcomBluetoothHostController_SetControllerFeatureFlags,
-							  callbackBT4LEFX->orgIOBluetoothHostController_SetControllerFeatureFlags)(that, 0x0F);
-	DBGLOG("bt4lefx", "IOBluetoothHostController::SetControllerFeatureFlags returned %d", result);
+//==============================================================================
 
-	return result;
+int DBGENH::kdb_printf(const char *fmt, ...)
+{
+	va_list ap;
+	va_start(ap, fmt);
+	callbackDBGENH->vprintf(fmt, ap);
+	va_end(ap);
+	return 0;
 }
 
-void BT4LEFX::processKext(KernelPatcher &patcher, size_t index, mach_vm_address_t address, size_t size)
+//==============================================================================
+
+void DBGENH::kprintf(const char *fmt, ...)
 {
-	if (kextIOBluetooth.loadIndex == index) {
-		DBGLOG("bt4lefx", "%s", kextIOBluetooth.id);
+	va_list ap;
+	va_start(ap, fmt);
+	callbackDBGENH->vprintf(fmt, ap);
+	va_end(ap);
+}
 
-		if (getKernelVersion() > KernelVersion::Yosemite) {
-			orgIOBluetoothHostController_SetControllerFeatureFlags = patcher.solveSymbol(index, "__ZN25IOBluetoothHostController25SetControllerFeatureFlagsEj", address, size);
-			if (orgIOBluetoothHostController_SetControllerFeatureFlags) {
-				DBGLOG("bt4lefx", "obtained __ZN25IOBluetoothHostController25SetControllerFeatureFlagsEj");
+//==============================================================================
 
-				KernelPatcher::RouteRequest request {
-					"__ZN36AppleBroadcomBluetoothHostController25SetControllerFeatureFlagsEj",
-					AppleBroadcomBluetoothHostController_SetControllerFeatureFlags
-				};
-				patcher.routeMultiple(index, &request, 1, address, size);
-			} else {
-				SYSLOG("bt4lefx", "failed to resolve __ZN25IOBluetoothHostController25SetControllerFeatureFlagsEj %d", patcher.getError());
-				patcher.clearError();
-			}
-		}
-		else {
-			KernelPatcher::RouteRequest request {
-				"__ZN24IOBluetoothHCIController25SetControllerFeatureFlagsEj",
-				AppleBroadcomBluetoothHostController_SetControllerFeatureFlags,
-				orgIOBluetoothHostController_SetControllerFeatureFlags
+void DBGENH::processKernel(KernelPatcher &patcher)
+{
+	if (!(progressState & ProcessingState::KernelRouted))
+	{
+		vprintf = reinterpret_cast<t_vprintf>(patcher.solveSymbol(KernelPatcher::KernelID, "_vprintf"));
+		if (vprintf) {
+			KernelPatcher::RouteRequest requests[] = {
+				{"_kdb_printf", kdb_printf},
+				{"_kprintf", kprintf}
 			};
-			patcher.routeMultiple(index, &request, 1, address, size);
-			if (patcher.getError() == KernelPatcher::Error::NoError) {
-				DBGLOG("bt4lefx", "routed __ZN24IOBluetoothHCIController25SetControllerFeatureFlagsEj");
-			} else {
-				SYSLOG("bt4lefx", "failed to resolve __ZN24IOBluetoothHCIController25SetControllerFeatureFlagsEj %d", patcher.getError());
-				patcher.clearError();
-			}
-		}
+			if (!patcher.routeMultiple(KernelPatcher::KernelID, requests, arrsize(requests)))
+				SYSLOG("DBGENH", "patcher.routeMultiple for %s is failed with error %d", requests[0].symbol, patcher.getError());
+		} else
+			SYSLOG("DBGENH", "Symbol _vprintf cannot be resolved with error %d", patcher.getError());
+		
+		progressState |= ProcessingState::KernelRouted;
 	}
+
+	// Ignore all the errors for other processors
+	patcher.clearError();
 }

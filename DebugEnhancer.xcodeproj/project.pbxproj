@@ -7,11 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1C748C2D1C21952C0024EED2 /* kern_start.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C748C2C1C21952C0024EED2 /* kern_start.cpp */; };
 		CE405EC91E49DD9700AA0B3D /* libkmod.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CE405EC71E49DD7100AA0B3D /* libkmod.a */; };
 		CE405ED91E4A080700AA0B3D /* plugin_start.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE405ED81E4A080700AA0B3D /* plugin_start.cpp */; };
 		F654D35E1F6DA4FF00D29D64 /* kern_dbgenhancer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F654D35C1F6DA4FF00D29D64 /* kern_dbgenhancer.cpp */; };
 		F654D35F1F6DA4FF00D29D64 /* kern_dbgenhancer.hpp in Headers */ = {isa = PBXBuildFile; fileRef = F654D35D1F6DA4FF00D29D64 /* kern_dbgenhancer.hpp */; };
+		F6769743238FCF8000FDA3EE /* kern_start.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6769742238FCF8000FDA3EE /* kern_start.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -28,7 +28,6 @@
 
 /* Begin PBXFileReference section */
 		1C748C271C21952C0024EED2 /* DebugEnhancer.kext */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DebugEnhancer.kext; sourceTree = BUILT_PRODUCTS_DIR; };
-		1C748C2C1C21952C0024EED2 /* kern_start.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = kern_start.cpp; sourceTree = "<DebugEnhancer>"; };
 		1C748C2E1C21952C0024EED2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1CF01C901C8CF97F002DCEA3 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		1CF01C921C8CF997002DCEA3 /* Changelog.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Changelog.md; sourceTree = "<group>"; };
@@ -50,6 +49,7 @@
 		CE405EDA1E4A080F00AA0B3D /* plugin_start.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = plugin_start.hpp; sourceTree = "<group>"; };
 		F654D35C1F6DA4FF00D29D64 /* kern_dbgenhancer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = kern_dbgenhancer.cpp; sourceTree = "<group>"; };
 		F654D35D1F6DA4FF00D29D64 /* kern_dbgenhancer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = kern_dbgenhancer.hpp; sourceTree = "<group>"; };
+		F6769742238FCF8000FDA3EE /* kern_start.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = kern_start.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -87,7 +87,7 @@
 			children = (
 				F654D35C1F6DA4FF00D29D64 /* kern_dbgenhancer.cpp */,
 				F654D35D1F6DA4FF00D29D64 /* kern_dbgenhancer.hpp */,
-				1C748C2C1C21952C0024EED2 /* kern_start.cpp */,
+				F6769742238FCF8000FDA3EE /* kern_start.cpp */,
 				1C748C2E1C21952C0024EED2 /* Info.plist */,
 			);
 			path = DebugEnhancer;
@@ -241,9 +241,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F6769743238FCF8000FDA3EE /* kern_start.cpp in Sources */,
 				F654D35E1F6DA4FF00D29D64 /* kern_dbgenhancer.cpp in Sources */,
 				CE405ED91E4A080700AA0B3D /* plugin_start.cpp in Sources */,
-				1C748C2D1C21952C0024EED2 /* kern_start.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -1,40 +1,51 @@
 //
-//  kern_bt4lefx.hpp
-//  BT4LEContinuityFixup
+//  kern_dbgenhancer.hpp
+//  DebugEnhancer
 //
-//  Copyright © 2017 lvs1974. All rights reserved.
+//  Copyright © 2019 lvs1974. All rights reserved.
 //
 
-#ifndef kern_bt4lefx_hpp
-#define kern_bt4lefx_hpp
+#ifndef kern_dbgenhancer_hpp
+#define kern_dbgenhancer_hpp
 
 #include <Headers/kern_patcher.hpp>
 
-class BT4LEFX {
+class DBGENH {
 public:
 	bool init();
 	void deinit();
 	
 private:
 	/**
-	 *  Patch kext if needed and prepare other patches
+	 *  Patch kernel
 	 *
 	 *  @param patcher KernelPatcher instance
-	 *  @param index   kinfo handle
-	 *  @param address kinfo load address
-	 *  @param size    kinfo memory size
 	 */
-	void processKext(KernelPatcher &patcher, size_t index, mach_vm_address_t address, size_t size);
+	void processKernel(KernelPatcher &patcher);
 
 	/**
 	 *  Hooked methods / callbacks
 	 */
-	static int AppleBroadcomBluetoothHostController_SetControllerFeatureFlags(void *that, unsigned int a2);
-
+	static int 			kdb_printf(const char *fmt, ...);
+	static void			kprintf(const char *fmt, ...);
+	
 	/**
 	 *  Original method
 	 */
-	mach_vm_address_t orgIOBluetoothHostController_SetControllerFeatureFlags {};
+	using t_vprintf = int (*) (const char *fmt, va_list ap);
+	t_vprintf vprintf {nullptr};
+	
+	/**
+	 *  Current progress mask
+	 */
+	struct ProcessingState {
+		enum {
+			NothingReady = 0,
+			KernelRouted = 1,
+			EverythingDone = KernelRouted,
+		};
+	};
+	int progressState {ProcessingState::NothingReady};
 };
 
-#endif /* kern_bt4lefx_hpp */
+#endif /* kern_dbgenhancer_hpp */

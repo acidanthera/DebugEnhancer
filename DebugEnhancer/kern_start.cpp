@@ -1,8 +1,8 @@
 //
 //  kern_start.cpp
-//  BT4LEContinuityFixup
+//  DebugEnhancer
 //
-//  Copyright © 2017 lvs1974. All rights reserved.
+//  Copyright © 2019 lvs1974. All rights reserved.
 //
 
 #include <Headers/plugin_start.hpp>
@@ -10,18 +10,18 @@
 
 #include "kern_dbgenhancer.hpp"
 
-static BT4LEFX bt4lefx;
+static DBGENH dbgenh;
 
 static const char *bootargOff[] {
-	"-bt4lefxoff"
+	"-dbgenhxoff"
 };
 
 static const char *bootargDebug[] {
-	"-bt4lefxdbg"
+	"-dgnenhdbg"
 };
 
 static const char *bootargBeta[] {
-	"-bt4lefxbeta"
+	"-dbgenhbeta"
 };
 
 PluginConfiguration ADDPR(config) {
@@ -37,6 +37,6 @@ PluginConfiguration ADDPR(config) {
 	KernelVersion::MountainLion,
 	KernelVersion::Catalina,
 	[]() {
-		bt4lefx.init();
+		dbgenh.init();
 	}
 };
