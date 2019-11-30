@@ -17,7 +17,7 @@ static const char *bootargOff[] {
 };
 
 static const char *bootargDebug[] {
-	"-dgnenhdbg"
+	"-dbgenhdbg"
 };
 
 static const char *bootargBeta[] {
