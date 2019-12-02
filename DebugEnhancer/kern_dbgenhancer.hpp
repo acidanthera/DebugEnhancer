@@ -28,11 +28,14 @@ private:
 	 */
 	static int 			kdb_printf(const char *fmt, ...);
 	static void			kprintf(const char *fmt, ...);
+	static IOReturn     IOHibernateSystemSleep(void);
 	static uint32_t	    hibernate_write_image(void);
 	
 	/**
 	 *  Trampolines for original method invocations
 	 */
+	
+	mach_vm_address_t orgIOHibernateSystemSleep {};
 	mach_vm_address_t org_hibernate_write_image {};
 	
 	/**
@@ -42,7 +45,10 @@ private:
 	t_kern_vprintf kern_vprintf {nullptr};
 	
 	unsigned int *kernel_debug_entry_count {nullptr};
+	SInt64 *gIOKitDebug {nullptr};
 	
+	using t_log_setsize = int (*) (int);
+	t_log_setsize log_setsize {nullptr};
 	/**
 	 *  Current progress mask
 	 */
