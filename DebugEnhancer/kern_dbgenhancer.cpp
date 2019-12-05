@@ -120,21 +120,21 @@ void DBGENH::processKernel(KernelPatcher &patcher)
 		
 		log_setsize = reinterpret_cast<t_log_setsize>(patcher.solveSymbol(KernelPatcher::KernelID, "_log_setsize"));
 		if (log_setsize) {
-			int error = 0;
-			if ((error = log_setsize(1*1024*1024)))
-				SYSLOG("DBGENH", "log_setsize could not change dmesg buffer size to 1*1024*1024, error: %d", error);
-			
-			// enable higher limit in log_setsize
+			int size = 1048576;
 			const uint8_t find[]    = {0x3D, 0xFF, 0xFF, 0x0F, 0x00, 0x0F};
 			const uint8_t replace[] = {0x3D, 0xFF, 0xFF, 0xFF, 0xFF, 0x0F};
 			KernelPatcher::LookupPatch patch = {nullptr, find, replace, sizeof(find), 1};
 			DBGLOG("DBGENH", "applying kernel patch");
 			patcher.clearError();
 			patcher.applyLookupPatch(&patch, reinterpret_cast<uint8_t *>(log_setsize), 50);
-			if (patcher.getError() != KernelPatcher::Error::NoError)
+			if (patcher.getError() == KernelPatcher::Error::NoError)
+				size = 10485760;
+			else
 				SYSLOG("DBGENH", "applyLookupPatch failed with error %d", patcher.getError());
-			else if ((error = log_setsize(10*1024*1024)))
-				SYSLOG("DBGENH", "log_setsize could not change dmesg buffer size to 10*1024*1024, erro %d", error);
+			
+			int error = 0;
+			if ((error = log_setsize(size)))
+				SYSLOG("DBGENH", "log_setsize could not change dmesg buffer size to 1*1024*1024, error: %d", error);
 		}
 		else
 			SYSLOG("DBGENH", "Symbol _log_setsize cannot be resolved with error %d", patcher.getError());
