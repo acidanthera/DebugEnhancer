@@ -95,7 +95,7 @@ void DBGENH::processKernel(KernelPatcher &patcher)
 		kernel_debug_entry_count = reinterpret_cast<unsigned int *>(patcher.solveSymbol(KernelPatcher::KernelID, "_kernel_debugger_entry_count"));
 		if (!kernel_debug_entry_count)
 			SYSLOG("DBGENH", "Symbol _kernel_debugger_entry_count cannot be resolved with error %d", patcher.getError());
-		patcher.getError();
+		patcher.clearError();
 		
 		gIOKitDebug = reinterpret_cast<SInt64*>(patcher.solveSymbol(KernelPatcher::KernelID, "_gIOKitDebug"));
 		if (gIOKitDebug) {
@@ -103,7 +103,7 @@ void DBGENH::processKernel(KernelPatcher &patcher)
 		}
 		else
 			SYSLOG("DBGENH", "Symbol _gIOKitDebug cannot be resolved with error %d", patcher.getError());
-		patcher.getError();
+		patcher.clearError();
 				
 		kern_vprintf = reinterpret_cast<t_kern_vprintf>(patcher.solveSymbol(KernelPatcher::KernelID, "_vprintf"));
 		if (kern_vprintf) {
@@ -134,7 +134,7 @@ void DBGENH::processKernel(KernelPatcher &patcher)
 			
 			int error = 0;
 			if ((error = log_setsize(size)))
-				SYSLOG("DBGENH", "log_setsize could not change dmesg buffer size to 1*1024*1024, error: %d", error);
+				SYSLOG("DBGENH", "log_setsize could not change dmesg buffer size to %d, error: %d", size, error);
 		}
 		else
 			SYSLOG("DBGENH", "Symbol _log_setsize cannot be resolved with error %d", patcher.getError());
