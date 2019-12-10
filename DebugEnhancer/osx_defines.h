@@ -2,8 +2,7 @@
 //  osx_defines.h
 //  DebugEnhancer
 //
-//  Created by Sergey Lvov on 02.12.19.
-//  Copyright © 2019 vit9696. All rights reserved.
+//  Copyright © 2019 lvs1974. All rights reserved.
 //
 
 #ifndef osx_defines_h
