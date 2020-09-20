@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		CE405EC91E49DD9700AA0B3D /* libkmod.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CE405EC71E49DD7100AA0B3D /* libkmod.a */; };
 		CE405ED91E4A080700AA0B3D /* plugin_start.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE405ED81E4A080700AA0B3D /* plugin_start.cpp */; };
+		CE8DA0DA2517E21D008C44E8 /* libkmod.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CE8DA0D92517E21D008C44E8 /* libkmod.a */; };
 		F654D35E1F6DA4FF00D29D64 /* kern_dbgenhancer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F654D35C1F6DA4FF00D29D64 /* kern_dbgenhancer.cpp */; };
 		F654D35F1F6DA4FF00D29D64 /* kern_dbgenhancer.hpp in Headers */ = {isa = PBXBuildFile; fileRef = F654D35D1F6DA4FF00D29D64 /* kern_dbgenhancer.hpp */; };
 		F6769743238FCF8000FDA3EE /* kern_start.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6769742238FCF8000FDA3EE /* kern_start.cpp */; };
@@ -47,6 +47,7 @@
 		CE405ED21E49F9FC00AA0B3D /* kern_api.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = kern_api.hpp; sourceTree = "<group>"; };
 		CE405ED81E4A080700AA0B3D /* plugin_start.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = plugin_start.cpp; sourceTree = "<group>"; };
 		CE405EDA1E4A080F00AA0B3D /* plugin_start.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = plugin_start.hpp; sourceTree = "<group>"; };
+		CE8DA0D92517E21D008C44E8 /* libkmod.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libkmod.a; path = ../Lilu/MacKernelSDK/Library/x86_64/libkmod.a; sourceTree = "<group>"; };
 		F654D35C1F6DA4FF00D29D64 /* kern_dbgenhancer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = kern_dbgenhancer.cpp; sourceTree = "<group>"; };
 		F654D35D1F6DA4FF00D29D64 /* kern_dbgenhancer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = kern_dbgenhancer.hpp; sourceTree = "<group>"; };
 		F6769742238FCF8000FDA3EE /* kern_start.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = kern_start.cpp; sourceTree = "<group>"; };
@@ -58,7 +59,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CE405EC91E49DD9700AA0B3D /* libkmod.a in Frameworks */,
+				CE8DA0DA2517E21D008C44E8 /* libkmod.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -72,6 +73,7 @@
 				1C748C291C21952C0024EED2 /* DebugEnhancer */,
 				CE405EC81E49DD7B00AA0B3D /* SDK */,
 				1C748C281C21952C0024EED2 /* Products */,
+				CE8DA0D82517E21D008C44E8 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -143,6 +145,14 @@
 				CE405EC51E49DD7100AA0B3D /* Library */,
 			);
 			name = SDK;
+			sourceTree = "<group>";
+		};
+		CE8DA0D82517E21D008C44E8 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				CE8DA0D92517E21D008C44E8 /* libkmod.a */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -295,6 +305,8 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				KERNEL_EXTENSION_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/MacKernelSDK/Headers";
+				KERNEL_FRAMEWORK_HEADERS = "$(PROJECT_DIR)/MacKernelSDK/Headers";
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 			};
@@ -339,6 +351,8 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				KERNEL_EXTENSION_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/MacKernelSDK/Headers";
+				KERNEL_FRAMEWORK_HEADERS = "$(PROJECT_DIR)/MacKernelSDK/Headers";
 				SDKROOT = macosx;
 			};
 			name = Release;
@@ -362,7 +376,7 @@
 				INFOPLIST_FILE = DebugEnhancer/Info.plist;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/Lilu.kext/Contents/Resources/Library",
+					"$(PROJECT_DIR)/MacKernelSDK/Library/x86_64",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MODULE_NAME = as.lvs1974.DebugEnhancer;
@@ -409,7 +423,7 @@
 				INFOPLIST_FILE = DebugEnhancer/Info.plist;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/Lilu.kext/Contents/Resources/Library",
+					"$(PROJECT_DIR)/MacKernelSDK/Library/x86_64",
 				);
 				LLVM_LTO = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
