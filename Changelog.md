@@ -1,5 +1,8 @@
 DebugEnhancer Changelog
 ============================
+#### v1.0.4
+- Use method routeMultipleLong instead of routeMultiple in order to avoid conflict with HibernationFixup
+
 #### v1.0.3
 - Added constants for macOS 12 support
 
