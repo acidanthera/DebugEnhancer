@@ -113,7 +113,7 @@ void DBGENH::processKernel(KernelPatcher &patcher)
 				{"_hibernate_write_image", hibernate_write_image, org_hibernate_write_image},
 				{"_IOHibernateSystemSleep", IOHibernateSystemSleep, orgIOHibernateSystemSleep}
 			};
-			if (!patcher.routeMultiple(KernelPatcher::KernelID, requests, arrsize(requests)))
+			if (!patcher.routeMultipleLong(KernelPatcher::KernelID, requests, arrsize(requests)))
 				SYSLOG("DBGENH", "patcher.routeMultiple for %s is failed with error %d", requests[0].symbol, patcher.getError());
 		} else
 			SYSLOG("DBGENH", "Symbol _vprintf cannot be resolved with error %d", patcher.getError());
