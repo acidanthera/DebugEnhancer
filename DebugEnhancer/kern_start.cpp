@@ -13,7 +13,7 @@
 static DBGENH dbgenh;
 
 static const char *bootargOff[] {
-	"-dbgenhxoff"
+	"-dbgenhoff"
 };
 
 static const char *bootargDebug[] {

@@ -88,6 +88,16 @@ uint32_t DBGENH::hibernate_write_image(void)
 
 //==============================================================================
 
+void DBGENH::IOLog(const char *fmt, ...)
+{
+	va_list ap;
+	va_start(ap, fmt);
+	callbackDBGENH->kern_vprintf(fmt, ap);
+	va_end(ap);
+}
+
+//==============================================================================
+
 void DBGENH::processKernel(KernelPatcher &patcher)
 {
 	if (!(progressState & ProcessingState::KernelRouted))
@@ -111,9 +121,13 @@ void DBGENH::processKernel(KernelPatcher &patcher)
 				{"_kdb_printf", kdb_printf},
 				{"_kprintf", kprintf},
 				{"_hibernate_write_image", hibernate_write_image, org_hibernate_write_image},
-				{"_IOHibernateSystemSleep", IOHibernateSystemSleep, orgIOHibernateSystemSleep}
+				{"_IOHibernateSystemSleep", IOHibernateSystemSleep, orgIOHibernateSystemSleep},
+				{"_IOLog", IOLog, orgIOLog}
 			};
-			if (!patcher.routeMultipleLong(KernelPatcher::KernelID, requests, arrsize(requests)))
+			
+			bool route_iolog = checkKernelArgument("-dbgenhiolog");
+			size_t size = arrsize(requests) - (route_iolog ? 0 : 1);
+			if (!patcher.routeMultipleLong(KernelPatcher::KernelID, requests, size))
 				SYSLOG("DBGENH", "patcher.routeMultiple for %s is failed with error %d", requests[0].symbol, patcher.getError());
 		} else
 			SYSLOG("DBGENH", "Symbol _vprintf cannot be resolved with error %d", patcher.getError());

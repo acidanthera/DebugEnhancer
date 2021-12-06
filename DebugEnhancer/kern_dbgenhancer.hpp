@@ -30,6 +30,7 @@ private:
 	static void			kprintf(const char *fmt, ...);
 	static IOReturn     IOHibernateSystemSleep(void);
 	static uint32_t	    hibernate_write_image(void);
+	static void         IOLog(const char *fmt, ...);
 	
 	/**
 	 *  Trampolines for original method invocations
@@ -37,6 +38,7 @@ private:
 	
 	mach_vm_address_t orgIOHibernateSystemSleep {};
 	mach_vm_address_t org_hibernate_write_image {};
+	mach_vm_address_t orgIOLog {};
 	
 	/**
 	 *  Original method

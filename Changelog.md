@@ -1,5 +1,8 @@
 DebugEnhancer Changelog
 ============================
+#### v1.0.5
+- Support boot-arg `-dbgenhiolog` to redirect IOLog output to kernel vprintf
+
 #### v1.0.4
 - Use method routeMultipleLong instead of routeMultiple in order to avoid conflict with HibernationFixup
 
