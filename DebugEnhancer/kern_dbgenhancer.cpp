@@ -168,8 +168,7 @@ void DBGENH::processKernel(KernelPatcher &patcher)
 
 					bsd_log_lock_safe();
 					
-					if (msgbufp->msg_magic != MSG_MAGIC)
-						PANIC("DBGENH", "msgbufp->msg_magic has a wrong magic value: 0x%x", msgbufp->msg_magic);
+					PANIC_COND(msgbufp->msg_magic != MSG_MAGIC, "DBGENH", "msgbufp->msg_magic has a wrong magic value");
 					
 					char *old_logdata = msgbufp->msg_bufc;
 					int old_logsize = msgbufp->msg_size;
