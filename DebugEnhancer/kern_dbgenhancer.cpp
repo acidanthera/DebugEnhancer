@@ -132,7 +132,6 @@ void DBGENH::processKernel(KernelPatcher &patcher)
 		} else
 			SYSLOG("DBGENH", "Symbol _vprintf cannot be resolved with error %d", patcher.getError());
 		
-		int size = MAX_MSG_BSIZE;
 		log_setsize = reinterpret_cast<t_log_setsize>(patcher.solveSymbol(KernelPatcher::KernelID, "_log_setsize"));
 		if (log_setsize) {
 			const uint8_t find[]    = {0x3D, 0xFF, 0xFF, 0x0F, 0x00, 0x0F};
@@ -141,14 +140,15 @@ void DBGENH::processKernel(KernelPatcher &patcher)
 			DBGLOG("DBGENH", "applying kernel patch");
 			patcher.clearError();
 			patcher.applyLookupPatch(&patch, reinterpret_cast<uint8_t *>(log_setsize), 50);
+			int new_logsize = MAX_MSG_BSIZE;
 			if (patcher.getError() == KernelPatcher::Error::NoError)
-				size = 10485760;
+				new_logsize = MAX_MSG_BSIZE*10;	// 10 MBytes
 			else
 				SYSLOG("DBGENH", "applyLookupPatch failed with error %d", patcher.getError());
 			
 			int error = 0;
-			if ((error = log_setsize(size)))
-				SYSLOG("DBGENH", "log_setsize could not change dmesg buffer size to %d, error: %d", size, error);
+			if ((error = log_setsize(new_logsize)))
+				SYSLOG("DBGENH", "log_setsize could not change dmesg buffer size to %d, error: %d", new_logsize, error);
 		}
 		else
 		{
@@ -159,7 +159,7 @@ void DBGENH::processKernel(KernelPatcher &patcher)
 			struct msgbuf *msgbufp = reinterpret_cast<struct msgbuf *>(patcher.solveSymbol(KernelPatcher::KernelID, "_msgbuf"));
 			if (kalloc_data && bsd_log_lock_safe && bsd_log_unlock && msgbufp)
 			{
-				int new_logsize = 10485760;
+				int new_logsize = MAX_MSG_BSIZE*10; // 10 MBytes
 				char *new_logdata = kalloc_data(new_logsize, Z_WAITOK | Z_ZERO);
 				if (new_logdata != nullptr)
 				{
@@ -167,7 +167,6 @@ void DBGENH::processKernel(KernelPatcher &patcher)
 					char *p = nullptr;
 
 					bsd_log_lock_safe();
-					bzero(new_logdata, new_logsize);
 					
 					if (msgbufp->msg_magic != MSG_MAGIC)
 						PANIC("DBGENH", "msgbufp->msg_magic has a wrong magic value: 0x%x", msgbufp->msg_magic);
@@ -177,52 +176,43 @@ void DBGENH::processKernel(KernelPatcher &patcher)
 					int old_bufr = msgbufp->msg_bufr;
 					int old_bufx = msgbufp->msg_bufx;
 
-					/* start "new_logsize" bytes before the write pointer */
+					// start "new_logsize" bytes before the write pointer
 					if (new_logsize <= old_bufx) {
 						count = new_logsize;
 						p = old_logdata + old_bufx - count;
 					} else {
-						/*
-						 * if new buffer is bigger, copy what we have and let the
-						 * bzero above handle the difference
-						 */
+						 // if new buffer is bigger, copy what we have and let the bzero above handle the difference
 						count = MIN(new_logsize, old_logsize);
 						p = old_logdata + old_logsize - (count - old_bufx);
 					}
 
-
 					for (i = 0; i < count; i++) {
-						if (p >= old_logdata + old_logsize) {
+						if (p >= old_logdata + old_logsize)
 							p = old_logdata;
-						}
 						new_logdata[i] = *p++;
 					}
 
 					int new_bufx = i;
-					if (new_bufx >= new_logsize) {
+					if (new_bufx >= new_logsize)
 						new_bufx = 0;
-					}
 					msgbufp->msg_bufx = new_bufx;
 
-					int new_bufr = old_bufx - old_bufr; /* how much were we trailing bufx by? */
-					if (new_bufr < 0) {
+					int new_bufr = old_bufx - old_bufr; // how much were we trailing bufx by?
+					if (new_bufr < 0)
 						new_bufr += old_logsize;
-					}
-					new_bufr = new_bufx - new_bufr; /* now relative to oldest data in new buffer */
-					if (new_bufr < 0) {
+					
+					new_bufr = new_bufx - new_bufr; // now relative to oldest data in new buffer
+					if (new_bufr < 0)
 						new_bufr += new_logsize;
-					}
+					
 					msgbufp->msg_bufr = new_bufr;
-
 					msgbufp->msg_size = new_logsize;
 					msgbufp->msg_bufc = new_logdata;
 
 					bsd_log_unlock();
 					
-					/*
-					 * This memory is now dead - clear it so that it compresses better
-					 * in case of suspend to disk etc.
-					 */
+					// This memory is now dead - clear it so that it compresses better
+					// in case of suspend to disk etc.
 					bzero(old_logdata, old_logsize);
 				}
 				else
