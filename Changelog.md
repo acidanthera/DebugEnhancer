@@ -1,5 +1,8 @@
 DebugEnhancer Changelog
 ============================
+#### v1.0.6
+- Workaround for macos 12 (Monterey) and higher: do not use log_setsize
+
 #### v1.0.5
 - Support boot-arg `-dbgenhiolog` to redirect IOLog output to kernel vprintf
 

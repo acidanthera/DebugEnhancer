@@ -132,9 +132,9 @@ void DBGENH::processKernel(KernelPatcher &patcher)
 		} else
 			SYSLOG("DBGENH", "Symbol _vprintf cannot be resolved with error %d", patcher.getError());
 		
+		int size = MAX_MSG_BSIZE;
 		log_setsize = reinterpret_cast<t_log_setsize>(patcher.solveSymbol(KernelPatcher::KernelID, "_log_setsize"));
 		if (log_setsize) {
-			int size = 1048576;
 			const uint8_t find[]    = {0x3D, 0xFF, 0xFF, 0x0F, 0x00, 0x0F};
 			const uint8_t replace[] = {0x3D, 0xFF, 0xFF, 0xFF, 0xFF, 0x0F};
 			KernelPatcher::LookupPatch patch = {nullptr, find, replace, sizeof(find), 1};
@@ -151,7 +151,88 @@ void DBGENH::processKernel(KernelPatcher &patcher)
 				SYSLOG("DBGENH", "log_setsize could not change dmesg buffer size to %d, error: %d", size, error);
 		}
 		else
-			SYSLOG("DBGENH", "Symbol _log_setsize cannot be resolved with error %d", patcher.getError());
+		{
+			patcher.clearError();
+			kalloc_data = reinterpret_cast<t_kalloc_data>(patcher.solveSymbol(KernelPatcher::KernelID, "_kalloc_data"));
+			bsd_log_lock_safe = reinterpret_cast<t_bsd_log_lock_safe>(patcher.solveSymbol(KernelPatcher::KernelID, "_bsd_log_lock_safe"));
+			bsd_log_unlock = reinterpret_cast<t_bsd_log_unlock>(patcher.solveSymbol(KernelPatcher::KernelID, "_bsd_log_unlock"));
+			struct msgbuf *msgbufp = reinterpret_cast<struct msgbuf *>(patcher.solveSymbol(KernelPatcher::KernelID, "_msgbuf"));
+			if (kalloc_data && bsd_log_lock_safe && bsd_log_unlock && msgbufp)
+			{
+				int new_logsize = 10485760;
+				char *new_logdata = kalloc_data(new_logsize, Z_WAITOK | Z_ZERO);
+				if (new_logdata != nullptr)
+				{
+					int i = 0, count = 0;
+					char *p = nullptr;
+
+					bsd_log_lock_safe();
+					bzero(new_logdata, new_logsize);
+					
+					if (msgbufp->msg_magic != MSG_MAGIC)
+						PANIC("DBGENH", "msgbufp->msg_magic has a wrong magic value: 0x%x", msgbufp->msg_magic);
+					
+					char *old_logdata = msgbufp->msg_bufc;
+					int old_logsize = msgbufp->msg_size;
+					int old_bufr = msgbufp->msg_bufr;
+					int old_bufx = msgbufp->msg_bufx;
+
+					/* start "new_logsize" bytes before the write pointer */
+					if (new_logsize <= old_bufx) {
+						count = new_logsize;
+						p = old_logdata + old_bufx - count;
+					} else {
+						/*
+						 * if new buffer is bigger, copy what we have and let the
+						 * bzero above handle the difference
+						 */
+						count = MIN(new_logsize, old_logsize);
+						p = old_logdata + old_logsize - (count - old_bufx);
+					}
+
+
+					for (i = 0; i < count; i++) {
+						if (p >= old_logdata + old_logsize) {
+							p = old_logdata;
+						}
+						new_logdata[i] = *p++;
+					}
+
+					int new_bufx = i;
+					if (new_bufx >= new_logsize) {
+						new_bufx = 0;
+					}
+					msgbufp->msg_bufx = new_bufx;
+
+					int new_bufr = old_bufx - old_bufr; /* how much were we trailing bufx by? */
+					if (new_bufr < 0) {
+						new_bufr += old_logsize;
+					}
+					new_bufr = new_bufx - new_bufr; /* now relative to oldest data in new buffer */
+					if (new_bufr < 0) {
+						new_bufr += new_logsize;
+					}
+					msgbufp->msg_bufr = new_bufr;
+
+					msgbufp->msg_size = new_logsize;
+					msgbufp->msg_bufc = new_logdata;
+
+					bsd_log_unlock();
+					
+					/*
+					 * This memory is now dead - clear it so that it compresses better
+					 * in case of suspend to disk etc.
+					 */
+					bzero(old_logdata, old_logsize);
+				}
+				else
+					SYSLOG("DBGENH", "kalloc_data could not allocate memory");
+			}
+			else
+			{
+				SYSLOG("DBGENH", "Symbol _log_setsize/_kalloc_data/_bsd_log_lock_safe/_bsd_log_unlock/_msgbuf cannot be resolved with error %d", patcher.getError());
+			}
+		}
 
 		progressState |= ProcessingState::KernelRouted;
 	}

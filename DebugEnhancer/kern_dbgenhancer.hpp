@@ -10,6 +10,29 @@
 
 #include <Headers/kern_patcher.hpp>
 
+#define MAX_MSG_BSIZE   (1*1024*1024)
+
+enum zalloc_flags_t {
+	Z_WAITOK        = 0x0000,
+	Z_NOWAIT        = 0x0001,
+	Z_NOPAGEWAIT    = 0x0002,
+	Z_ZERO          = 0x0004,
+    Z_NOFAIL        = 0x8000
+};
+
+#pragma pack(push,1)
+
+struct  msgbuf {
+#define MSG_MAGIC       0x063061
+	int             msg_magic;
+	int             msg_size;
+	int             msg_bufx;               /* write pointer */
+	int             msg_bufr;               /* read pointer */
+	char           *msg_bufc;               /* buffer */
+};
+
+#pragma pack(pop)
+
 class DBGENH {
 public:
 	bool init();
@@ -51,7 +74,20 @@ private:
 	
 	using t_log_setsize = int (*) (int);
 	t_log_setsize log_setsize {nullptr};
-	/**
+	
+	using t_kalloc_data = char * (*)(vm_size_t size, uint32_t flags);
+	t_kalloc_data kalloc_data {nullptr};
+	
+	using t_bsd_log_lock_safe = void (*) ();
+	t_bsd_log_lock_safe bsd_log_lock_safe {nullptr};
+
+	using t_bsd_log_unlock = void (*) ();
+	t_bsd_log_unlock bsd_log_unlock {nullptr};
+	
+	using t_kernel_sysctlbyname = int (*)(const char *, void *, size_t *, void *, size_t);
+	t_kernel_sysctlbyname kernel_sysctlbyname {nullptr};
+	
+		/**
 	 *  Current progress mask
 	 */
 	struct ProcessingState {
