@@ -8,8 +8,9 @@
 #include <Headers/kern_api.hpp>
 #include <Headers/kern_util.hpp>
 
+#include <IOKit/IOKitDebug.h>
+
 #include "kern_dbgenhancer.hpp"
-#include "osx_defines.h"
 
 static DBGENH *callbackDBGENH = nullptr;
 

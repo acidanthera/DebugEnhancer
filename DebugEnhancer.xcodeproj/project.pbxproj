@@ -51,7 +51,6 @@
 		F654D35C1F6DA4FF00D29D64 /* kern_dbgenhancer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = kern_dbgenhancer.cpp; sourceTree = "<group>"; };
 		F654D35D1F6DA4FF00D29D64 /* kern_dbgenhancer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = kern_dbgenhancer.hpp; sourceTree = "<group>"; };
 		F6769742238FCF8000FDA3EE /* kern_start.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = kern_start.cpp; sourceTree = "<group>"; };
-		F6E888CB23953B4A00A8F9AA /* osx_defines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = osx_defines.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -92,7 +91,6 @@
 				F654D35D1F6DA4FF00D29D64 /* kern_dbgenhancer.hpp */,
 				F6769742238FCF8000FDA3EE /* kern_start.cpp */,
 				1C748C2E1C21952C0024EED2 /* Info.plist */,
-				F6E888CB23953B4A00A8F9AA /* osx_defines.h */,
 			);
 			path = DebugEnhancer;
 			sourceTree = "<group>";
