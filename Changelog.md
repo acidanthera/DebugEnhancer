@@ -1,5 +1,8 @@
 DebugEnhancer Changelog
 ============================
+#### v1.0.7
+- Added constants for macOS 13 support
+
 #### v1.0.6
 - Workaround for macos 12 (Monterey) and higher: do not use log_setsize
 
