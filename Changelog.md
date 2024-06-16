@@ -1,5 +1,8 @@
 DebugEnhancer Changelog
 ============================
+#### v1.0.9
+- Added constants for macOS 15 support
+
 #### v1.0.8
 - Added constants for macOS 14 support
 
