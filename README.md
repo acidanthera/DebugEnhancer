@@ -8,6 +8,6 @@ the original idea belongs to Piker-Alpha, see https://github.com/Piker-Alpha/deb
 
 #### Boot-args
 - `-dbgenhdbg`   turns on debugging output
-- `-dbgenhbeta`  enables loading on unsupported osx
+- `-dbgenhbeta`  enables loading on unsupported macOS
 - `-dbgenhoff`   disables kext loading
 - `-dbgenhiolog` redirect IOLog output to kernel vprintf (the same as for kdb_printf and kprintf)

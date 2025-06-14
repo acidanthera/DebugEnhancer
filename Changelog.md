@@ -1,5 +1,8 @@
 DebugEnhancer Changelog
 ============================
+#### v1.1.1
+- Added constants for macOS 26 support
+
 #### v1.1.0
 - Fixed loading on macOS 10.10 and older due to a MacKernelSDK regression
 
